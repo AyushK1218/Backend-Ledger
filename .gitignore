@@ -1,0 +1,26 @@
+# Environment variables - CRITICAL
+.env
+.env.local
+.env.*.local
+
+# Dependencies folder only (not lock files)
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Test coverage
+coverage/
+
+# Misc
+tmp/
+temp/

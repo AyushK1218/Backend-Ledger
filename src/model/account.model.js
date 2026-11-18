@@ -30,14 +30,21 @@ const accountSchema = new mongoose.Schema({
 accountSchema.index({user: 1, status: 1}) //this is a compound index for userid and status (if we query using status, then in that case as well it will optimize the searching)
 
 accountSchema.methods.getBalance = async function () {
+    const balanceData = await accountModel.getBalances([this._id])
+    return balanceData.length === 0 ? 0 : balanceData[0].balance
+}
 
-    //aggregation pipeline lets you define your custom queries
+accountSchema.statics.getBalances = async function (accountIds) {
 
-    const balanceData = await ledgerModel.aggregate([
-        {$match: {account: this._id}},
+    if (accountIds.length === 0) {
+        return []
+    }
+
+    return await ledgerModel.aggregate([
+        {$match: {account: {$in: accountIds}}},
         {
             $group: {
-                _id: null,
+                _id: "$account",
                 totalDebit: {
                     $sum: {
                         $cond: [
@@ -60,17 +67,11 @@ accountSchema.methods.getBalance = async function () {
         },
         {
             $project: {
-                _id: 0,
+                _id: 1,
                 balance: {$subtract: ["$totalCredit", "$totalDebit"]}
             }
         }
     ])
-
-    if (balanceData.length === 0) {
-        return 0;
-    }
-
-    return balanceData[0].balance
 }
 
 const accountModel = mongoose.model("account", accountSchema)

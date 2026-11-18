@@ -150,7 +150,7 @@ async function createTransaction(req, res) {
         )
 
         await session.commitTransaction();
-        session.endSession();
+        await session.endSession();
     } catch (err) {
 
         return res.status(400).json({
